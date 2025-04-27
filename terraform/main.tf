@@ -8,10 +8,10 @@ resource "aws_instance" "web_server" {
   instance_type = "t2.micro"               # Update instance type if needed
   key_name      = "kalki"                  # Replace with your EC2 key pair name
 
-  network_interface {
-    security_groups = ["sg-05ceab0bf868a0434"]   # Fixed here, using security_groups
-    associate_public_ip_address = true
-  }
+  # Correct way to assign a security group (list of strings)
+  security_groups = ["sg-05ceab0bf868a0434"]  # This should be in a list
+
+  associate_public_ip_address = true  # Automatically associate public IP
 
   tags = {
     Name = "AutoHealingEC2"
@@ -19,6 +19,7 @@ resource "aws_instance" "web_server" {
 
   monitoring = true  # Enable detailed monitoring (required for CloudWatch)
 }
+
 
 # Data block for IAM Policy Document (for Lambda AssumeRole)
 data "aws_iam_policy_document" "lambda_assume_role_policy" {
