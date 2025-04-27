@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_instance" "web_server" {
   ami             = "ami-0c55b159cbfafe1f0"  # Replace with your desired AMI ID
   instance_type   = "t2.micro"               # Update instance type if needed
-  key_name        = "your-key-name"          # Replace with your EC2 key pair name
+  key_name        = "kalki"          # Replace with your EC2 key pair name
   security_groups = ["your-security-group"]  # Replace with your security group
 
   tags = {
