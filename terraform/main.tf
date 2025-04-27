@@ -4,11 +4,11 @@ provider "aws" {
 
 # Security Group
 resource "aws_security_group" "web_sg" {
-  name        = "web_sg"
-  description = "Allow inbound traffic on port 22 (SSH) and 80 (HTTP)"
+  name        = "web-sg"
+  description = "Allow SSH and HTTP inbound traffic"
 
-  # Define inbound rules (adjust as per your needs)
   ingress {
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -16,20 +16,21 @@ resource "aws_security_group" "web_sg" {
   }
 
   ingress {
+    description = "HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Define outbound rules (allow all outbound traffic by default)
-  egress {
+  egress {   # ✅ Added this block to avoid revoke errors
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 # EC2 Instance
 resource "aws_instance" "web_server" {
