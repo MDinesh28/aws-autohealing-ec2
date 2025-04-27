@@ -7,8 +7,7 @@ resource "aws_instance" "web_server" {
   ami = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
   instance_type   = "t2.micro"               # Update instance type if needed
   key_name        = "kalki"                  # Replace with your EC2 key pair name
-  security_groups = ["sg-05ceab0bf868a0434"]  # Replace with your security group name
-
+security_group_ids = ["sg-05ceab0bf868a0434"]
   tags = {
     Name = "AutoHealingEC2"
   }
