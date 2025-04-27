@@ -45,10 +45,9 @@ resource "aws_lambda_function" "self_healing_lambda" {
   filename      = "lambda.zip"  # Lambda function package (must exist before applying)
 }
 
-# CloudWatch Alarm to trigger Lambda if EC2 status check fails
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   alarm_name          = "EC2StatusCheckFailed"
-  comparison_operator = "LESS_THAN_THRESHOLD"
+  comparison_operator = "LessThanThreshold"   # ✅ fixed here
   evaluation_periods  = "1"
   metric_name         = "StatusCheckFailed"
   namespace           = "AWS/EC2"
@@ -56,7 +55,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   statistic           = "Maximum"
   threshold           = "1"
   alarm_description   = "Triggered if EC2 status check fails"
-  
+
   dimensions = {
     InstanceId = aws_instance.web_server.id
   }
