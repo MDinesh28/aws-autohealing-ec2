@@ -33,20 +33,20 @@ resource "aws_security_group" "web_sg" {
 
 # EC2 Instance
 resource "aws_instance" "web_server" {
-  ami                = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
-  instance_type      = "t2.micro"               # Update instance type if needed
-  key_name           = "kalki"                  # Replace with your EC2 key pair name
+  ami                    = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
+  instance_type          = "t2.micro"
+  key_name               = "kalki"
 
-  # Associate the security group created above
-  security_groups    = [aws_security_group.web_sg.name]  # Using the security group created
+  # Correct way when security group is created by Terraform
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
 
-  associate_public_ip_address = true  # Automatically associate public IP
+  associate_public_ip_address = true
 
   tags = {
     Name = "AutoHealingEC2"
   }
 
-  monitoring = true  # Enable detailed monitoring (required for CloudWatch)
+  monitoring = true
 }
 
 # Data block for IAM Policy Document (for Lambda AssumeRole)
