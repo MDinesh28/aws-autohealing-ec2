@@ -40,7 +40,7 @@ resource "aws_lambda_function" "self_healing_lambda" {
   function_name = "SelfHealingEC2Lambda"
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime = "nodejs18.x"
   timeout       = 30
   filename      = "lambda.zip"  # Lambda function package (must exist before applying)
 }
