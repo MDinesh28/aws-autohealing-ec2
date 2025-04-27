@@ -1,0 +1,68 @@
+provider "aws" {
+  region = "ap-south-1"  # Update with your preferred AWS region
+}
+
+resource "aws_instance" "web_server" {
+  ami             = "ami-0c55b159cbfafe1f0"  # Replace with your desired AMI ID
+  instance_type   = "t2.micro"               # Update instance type if needed
+  key_name        = "your-key-name"          # Replace with your EC2 key pair name
+  security_groups = ["your-security-group"]  # Replace with your security group
+
+  tags = {
+    Name = "AutoHealingEC2"
+  }
+
+  # CloudWatch Monitoring
+  monitoring = true
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
+  alarm_name          = "EC2StatusCheckFailed"
+  comparison_operator = "LESS_THAN_THRESHOLD"
+  evaluation_periods  = "1"
+  metric_name         = "StatusCheckFailed"
+  namespace           = "AWS/EC2"
+  period              = "60"
+  statistic           = "Maximum"
+  threshold           = "1"
+  alarm_description   = "Triggered if EC2 status check fails"
+  dimensions = {
+    InstanceId = aws_instance.web_server.id
+  }
+
+  alarm_actions = [
+    aws_lambda_function.self_healing_lambda.arn
+  ]
+}
+
+resource "aws_lambda_function" "self_healing_lambda" {
+  function_name = "SelfHealingEC2Lambda"
+  role          = aws_iam_role.lambda_exec_role.arn
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  timeout       = 30
+
+  # Lambda code
+  filename      = "lambda.zip"  # Lambda code will be packaged as a ZIP file
+}
+
+resource "aws_iam_role" "lambda_exec_role" {
+  name               = "lambda-exec-role"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+}
+
+resource "aws_iam_policy_document" "lambda_assume_role_policy" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+output "ec2_instance_id" {
+  value = aws_instance.web_server.id
+}
