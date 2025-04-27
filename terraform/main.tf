@@ -2,14 +2,43 @@ provider "aws" {
   region = "ap-south-1"  # Update with your preferred AWS region
 }
 
+# Security Group
+resource "aws_security_group" "web_sg" {
+  name        = "web_sg"
+  description = "Allow inbound traffic on port 22 (SSH) and 80 (HTTP)"
+
+  # Define inbound rules (adjust as per your needs)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Define outbound rules (allow all outbound traffic by default)
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # EC2 Instance
 resource "aws_instance" "web_server" {
-  ami           = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
-  instance_type = "t2.micro"               # Update instance type if needed
-  key_name      = "kalki"                  # Replace with your EC2 key pair name
+  ami                = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
+  instance_type      = "t2.micro"               # Update instance type if needed
+  key_name           = "kalki"                  # Replace with your EC2 key pair name
 
-  # Correct way to assign a security group (list of strings)
-  security_groups = ["sg-05ceab0bf868a0434"]  # This should be in a list
+  # Associate the security group created above
+  security_groups    = [aws_security_group.web_sg.name]  # Using the security group created
 
   associate_public_ip_address = true  # Automatically associate public IP
 
@@ -19,7 +48,6 @@ resource "aws_instance" "web_server" {
 
   monitoring = true  # Enable detailed monitoring (required for CloudWatch)
 }
-
 
 # Data block for IAM Policy Document (for Lambda AssumeRole)
 data "aws_iam_policy_document" "lambda_assume_role_policy" {
@@ -50,6 +78,7 @@ resource "aws_lambda_function" "self_healing_lambda" {
   filename      = "lambda.zip"   # Lambda function package (must exist before applying)
 }
 
+# CloudWatch Alarm for EC2 Status Check
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   alarm_name          = "EC2StatusCheckFailed"
   comparison_operator = "LessThanThreshold"  # Fixed the comparison_operator
@@ -70,7 +99,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   ]
 }
 
-# Output
+# Output EC2 Instance ID
 output "ec2_instance_id" {
   value = aws_instance.web_server.id
 }
