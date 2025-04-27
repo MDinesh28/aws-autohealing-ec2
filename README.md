@@ -55,5 +55,9 @@ Inspired by Iron Man’s ability to auto-deploy suits mid-battle, this project r
 2. Edit `terraform/variables.tf` for your region & key pair
 3. Deploy with:
    ```bash
+   cd aws-autohealing-ec2/lambda/
+   zip lambda.zip index.js
+   mv lambda.zip ../terraform/
+   cd terraform 
    terraform init
    terraform apply
