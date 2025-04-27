@@ -4,7 +4,7 @@ provider "aws" {
 
 # EC2 Instance
 resource "aws_instance" "web_server" {
-  ami             = "ami-0c55b159cbfafe1f0"  # Replace with your desired AMI ID
+  ami = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
   instance_type   = "t2.micro"               # Update instance type if needed
   key_name        = "kalki"                  # Replace with your EC2 key pair name
   security_groups = ["your-security-group"]  # Replace with your security group name
