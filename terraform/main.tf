@@ -4,10 +4,15 @@ provider "aws" {
 
 # EC2 Instance
 resource "aws_instance" "web_server" {
-  ami = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
-  instance_type   = "t2.micro"               # Update instance type if needed
-  key_name        = "kalki"                  # Replace with your EC2 key pair name
-security_group_ids = ["sg-05ceab0bf868a0434"]
+  ami           = "ami-03bb6d83c60fc5f7c"  # Amazon Linux 2 AMI in Mumbai
+  instance_type = "t2.micro"               # Update instance type if needed
+  key_name      = "kalki"                  # Replace with your EC2 key pair name
+
+  network_interface {
+    security_groups = ["sg-05ceab0bf868a0434"]   # Fixed here, using security_groups
+    associate_public_ip_address = true
+  }
+
   tags = {
     Name = "AutoHealingEC2"
   }
@@ -39,14 +44,14 @@ resource "aws_lambda_function" "self_healing_lambda" {
   function_name = "SelfHealingEC2Lambda"
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = "index.handler"
-  runtime = "nodejs18.x"
+  runtime       = "nodejs18.x"   # Updated runtime
   timeout       = 30
-  filename      = "lambda.zip"  # Lambda function package (must exist before applying)
+  filename      = "lambda.zip"   # Lambda function package (must exist before applying)
 }
 
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   alarm_name          = "EC2StatusCheckFailed"
-  comparison_operator = "LessThanThreshold"   # ✅ fixed here
+  comparison_operator = "LessThanThreshold"  # Fixed the comparison_operator
   evaluation_periods  = "1"
   metric_name         = "StatusCheckFailed"
   namespace           = "AWS/EC2"
