@@ -100,6 +100,34 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check" {
   ]
 }
 
+# IAM Policy for CloudWatch Logs permissions
+resource "aws_iam_policy" "cloudwatch_logs_policy" {
+  name        = "CloudWatchLogsPolicy"
+  description = "Policy to allow Lambda to create log groups, log streams, and put log events."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach the policy to the Lambda execution role
+resource "aws_iam_role_policy_attachment" "lambda_logs_policy_attachment" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = aws_iam_policy.cloudwatch_logs_policy.arn
+}
+
+
 # Output EC2 Instance ID
 output "ec2_instance_id" {
   value = aws_instance.web_server.id
